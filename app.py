@@ -38,11 +38,19 @@ def calculate_title_score(html_content, return_title=False):
         # Parse the HTML content using BeautifulSoup
         soup = BeautifulSoup(html_content, "html.parser")
         # Extract the page title
-        title = (
-            soup.title.string.strip().encode("latin-1").decode("utf-8")
-            if soup.title
-            else ""
-        )
+        
+        if 'à' in soup.title.string.strip():
+          title = (
+              soup.title.string.strip().encode("latin-1").decode("utf-8")
+              if soup.title
+              else ""
+          )
+        else:
+          title = (
+              soup.title.string.strip()
+              if soup.title
+              else ""
+          )
 
         # Calculate the score based on title length
         title_length = len(title)
@@ -84,9 +92,14 @@ def calculate_description_score(html_content, return_description=False):
         meta_description = soup.find("meta", attrs={"name": "description"})
 
         if meta_description and "content" in meta_description.attrs:
-            description = (
-                meta_description["content"].strip().encode("latin-1").decode("utf-8")
-            )
+            if "à" in meta_description["content"].strip():
+              description = (
+                  meta_description["content"].strip().encode("latin-1").decode("utf-8")
+              )
+            else:
+              description = (
+                  meta_description["content"].strip()
+              )
         else:
             description = ""
 
@@ -237,7 +250,10 @@ def extract_headings(html_content):
             heading_tags = soup.find_all(f"h{i}")
             for heading_tag in heading_tags:
                 # Extract the content of the heading tag and add it to the respective list
-                heading_text = heading_tag.get_text().strip().encode("latin-1").decode("utf-8")
+                if "à" in heading_tag.get_text().strip():
+                  heading_text = heading_tag.get_text().strip().encode("latin-1").decode("utf-8")
+                else:
+                  heading_text = heading_tag.get_text().strip()
                 headings_list[i - 1].append(heading_text)
 
         # Count the total number of heading tags
@@ -307,7 +323,12 @@ def is_valid_url(input_text):
 def get_html_from_url(url, return_headers=False):
     try:
         # Send an HTTP GET request to the specified URL
-        response = requests.get(url)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+            
+        }
+
+        response = requests.get(url, headers=headers)
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             # Return the HTML content of the page
