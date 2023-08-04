@@ -1,7 +1,7 @@
 # SEO_streamlit
 Install requiremetns
 ```
-pip -r requirements.txt
+pip install -r requirements.txt
 ```
 Run app
 ```
